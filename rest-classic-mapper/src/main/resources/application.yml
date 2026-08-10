@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: rest-classic-mapper
+
+server:
+  port: 8082
