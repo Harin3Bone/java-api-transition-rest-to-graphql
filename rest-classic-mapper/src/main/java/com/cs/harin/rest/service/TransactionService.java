@@ -4,6 +4,9 @@ import com.cs.harin.rest.dao.TransactionDAO;
 import com.cs.harin.rest.dao.request.TransactionRequest;
 import com.cs.harin.rest.entity.Transaction;
 import com.cs.harin.rest.entity.TransactionStatus;
+import com.cs.harin.rest.exception.NotFoundException;
+import com.cs.harin.rest.repository.TransactionRepository;
+import com.cs.harin.rest.util.DateFormatUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,20 +23,22 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TransactionService {
 
+    private final TransactionRepository transactionRepository;
     private final Clock systemClock;
 
     public List<TransactionDAO> getTransactions() {
         log.info("Retrieving all transactions");
-        var transaction = new Transaction();
-        transaction.setId(UUID.randomUUID());
 
-        return List.of(toTransactionDAO(transaction));
+        return transactionRepository.findAll()
+                .stream()
+                .map(this::toTransactionDAO)
+                .toList();
     }
 
     public TransactionDAO getTransactionById(String id) {
         log.info("Retrieving transaction by id: {}", id);
-        var transaction = new Transaction();
-        transaction.setId(UUID.fromString(id));
+        var transaction = transactionRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new NotFoundException(id));
 
         return toTransactionDAO(transaction);
     }
@@ -52,34 +57,46 @@ public class TransactionService {
         transaction.setCreatedTimestamp(ZonedDateTime.now(systemClock));
         transaction.setUpdatedTimestamp(ZonedDateTime.now(systemClock));
 
+        transactionRepository.save(transaction);
+
         return toTransactionDAO(transaction);
     }
 
-    public TransactionDAO updateTransaction(String transactionId, TransactionRequest request) {
-        log.info("Updating transaction by id: {}", transactionId);
+    public TransactionDAO updateTransaction(String id, TransactionRequest request) {
+        log.info("Updating transaction by id: {}", id);
 
-        var transaction = new Transaction();
-        transaction.setId(UUID.fromString(transactionId));
+        var transaction = transactionRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new NotFoundException(id));
         transaction.setStatus(TransactionStatus.valueOf(request.getStatus()));
         transaction.setFundCode(request.getFundCode());
         transaction.setAccount(BigInteger.valueOf(request.getAccount()));
         transaction.setDealer(request.getDealer());
         transaction.setAmount(BigDecimal.valueOf(request.getAmount()));
-        transaction.setCreatedTimestamp(ZonedDateTime.now(systemClock).minusDays(1));
         transaction.setUpdatedTimestamp(ZonedDateTime.now(systemClock));
+
+        transactionRepository.save(transaction);
 
         return toTransactionDAO(transaction);
     }
 
-    public void deleteTransactionById(String transactionId) {
-        log.info("Deleting transaction by id: {}", transactionId);
+    public void deleteTransactionById(String id) {
+        log.info("Deleting transaction by id: {}", id);
+        transactionRepository.deleteById(UUID.fromString(id));
     }
 
     private TransactionDAO toTransactionDAO(Transaction transaction) {
         var dao = new TransactionDAO();
         dao.setId(transaction.getId().toString());
+        dao.setCreatedTimestamp(DateFormatUtil.zonedDateTimeToString(transaction.getCreatedTimestamp()));
+        dao.setUpdatedTimestamp(DateFormatUtil.zonedDateTimeToString(transaction.getUpdatedTimestamp()));
+        dao.setStatus(transaction.getStatus().name());
+        dao.setFundCode(transaction.getFundCode());
+        dao.setAccount(transaction.getAccount().longValue());
+        dao.setDealer(transaction.getDealer());
+        dao.setAmount(transaction.getAmount().doubleValue());
 
         return dao;
     }
+
 
 }

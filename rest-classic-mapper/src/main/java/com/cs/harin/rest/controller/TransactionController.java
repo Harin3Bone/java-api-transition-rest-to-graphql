@@ -17,12 +17,12 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @SuppressWarnings("java:S4488")
-@RequestMapping("/api/transactions")
+@RequestMapping("/api/transaction")
 public class TransactionController {
 
     private final TransactionService transactionService;
 
-    @RequestMapping(value = "", method = RequestMethod.GET)
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     public List<TransactionDAO> getTransactions() {
         return transactionService.getTransactions();
@@ -36,17 +36,17 @@ public class TransactionController {
 
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public TransactionDAO createTransaction() {
-        return null;
+    public TransactionDAO createTransaction(@RequestBody TransactionRequest request) {
+        return transactionService.createTransaction(request);
     }
 
     @RequestMapping(value = "/{transactionId}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
-    public TransactionDAO createTransaction(
+    public TransactionDAO updateTransaction(
             @PathVariable String transactionId,
             @RequestBody TransactionRequest request
     ) {
-        return transactionService.createTransaction(request);
+        return transactionService.updateTransaction(transactionId,  request);
     }
 
     @RequestMapping(value = "/{transactionId}", method = RequestMethod.DELETE)

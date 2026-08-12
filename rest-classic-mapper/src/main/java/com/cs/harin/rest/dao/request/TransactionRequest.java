@@ -7,13 +7,10 @@ import lombok.Setter;
 @Setter
 public class TransactionRequest {
 
-    private String id;
     private String status;
     private String fundCode;
     private Long account;
     private Integer dealer;
     private Double amount;
-    private String createdTimestamp;
-    private String updatedTimestamp;
 
 }
