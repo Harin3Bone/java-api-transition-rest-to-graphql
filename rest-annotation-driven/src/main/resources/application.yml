@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: rest-annotation-driven
+
+server:
+  port: 8081
