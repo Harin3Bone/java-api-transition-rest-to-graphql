@@ -6,6 +6,7 @@ import com.cs.harin.rest.entity.Transaction;
 import com.cs.harin.rest.entity.TransactionStatus;
 import com.cs.harin.rest.exception.NotFoundException;
 import com.cs.harin.rest.repository.TransactionRepository;
+import com.cs.harin.rest.util.DateFormatUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -86,6 +87,13 @@ public class TransactionService {
     private TransactionDAO toTransactionDAO(Transaction transaction) {
         var dao = new TransactionDAO();
         dao.setId(transaction.getId().toString());
+        dao.setCreatedTimestamp(DateFormatUtil.zonedDateTimeToString(transaction.getCreatedTimestamp()));
+        dao.setUpdatedTimestamp(DateFormatUtil.zonedDateTimeToString(transaction.getUpdatedTimestamp()));
+        dao.setStatus(transaction.getStatus().name());
+        dao.setFundCode(transaction.getFundCode());
+        dao.setAccount(transaction.getAccount().longValue());
+        dao.setDealer(transaction.getDealer());
+        dao.setAmount(transaction.getAmount().doubleValue());
 
         return dao;
     }

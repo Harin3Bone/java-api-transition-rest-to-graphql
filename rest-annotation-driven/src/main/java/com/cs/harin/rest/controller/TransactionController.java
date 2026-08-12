@@ -19,12 +19,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/transactions")
+@RequestMapping("/api/transaction")
 public class TransactionController {
 
     private final TransactionService transactionService;
 
-    @GetMapping("")
+    @GetMapping("/list")
     @ResponseStatus(HttpStatus.OK)
     public List<TransactionDAO> getTransactions() {
         return transactionService.getTransactions();
@@ -38,8 +38,8 @@ public class TransactionController {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public TransactionDAO createTransaction() {
-        return null;
+    public TransactionDAO createTransaction(@RequestBody TransactionRequest request) {
+        return transactionService.createTransaction(request);
     }
 
     @PutMapping("/{transactionId}")
@@ -48,7 +48,7 @@ public class TransactionController {
             @PathVariable String transactionId,
             @RequestBody TransactionRequest request
     ) {
-        return transactionService.createTransaction(request);
+        return transactionService.updateTransaction(transactionId, request);
     }
 
     @DeleteMapping("/{transactionId}")
