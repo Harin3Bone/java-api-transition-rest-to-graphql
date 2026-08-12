@@ -9,6 +9,25 @@ This project implements plugin for Maven to transition a Java Spring Boot API fr
 - Automatically generates GraphQL API based on existing RESTful endpoints
 - Automatically generates GraphQL schema and resolvers based on the existing RESTful request body.
 
+## Usage
+Add this plugin into the Spring Boot project at `pom.xml`
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>com.cs.harin</groupId>
+            <artifactId>api-transition-rest-to-graphql</artifactId>
+            <version>develop-SNAPSHOT</version>
+            <configuration>
+                <!-- Base package to scan - CHANGE THIS to match your package -->
+                <basePackage>com.cs.harin.rest</basePackage>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
+
 ## Data Structure
 
 ### REST Annotation Driven
