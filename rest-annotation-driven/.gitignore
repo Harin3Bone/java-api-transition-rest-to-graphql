@@ -31,10 +31,3 @@ build/
 
 ### VS Code ###
 .vscode/
-
-### Local Files ###
-.env
-*.sql
-!data.sql
-!schema.sql
-/postgres_data
