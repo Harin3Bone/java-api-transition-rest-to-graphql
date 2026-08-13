@@ -1,7 +1,7 @@
-package com.cs.harin.transition.scanner;
+package com.cs.harin.transition.model.scan;
 
 import com.cs.harin.transition.model.ClassInfo;
-import com.cs.harin.transition.model.EndpointInfo;
+import com.cs.harin.transition.model.rest.EndpointInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

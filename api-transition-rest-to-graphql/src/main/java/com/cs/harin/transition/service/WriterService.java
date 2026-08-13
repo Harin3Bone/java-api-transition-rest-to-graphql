@@ -1,22 +1,25 @@
-package com.cs.harin.transition.writer;
+package com.cs.harin.transition.service;
 
-import com.cs.harin.transition.model.*;
-import com.cs.harin.transition.scanner.ScanResult;
+import com.cs.harin.transition.model.ClassInfo;
+import com.cs.harin.transition.model.FieldInfo;
+import com.cs.harin.transition.model.ParameterInfo;
+import com.cs.harin.transition.model.rest.EndpointInfo;
+import com.cs.harin.transition.model.rest.MethodInfo;
+import com.cs.harin.transition.model.scan.ScanResult;
 import com.cs.harin.transition.util.DateFormatUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.apache.maven.plugin.logging.Log;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Writes scan results to various output formats in the /target/scan directory
  */
-public class ScanResultWriter {
+@Slf4j
+public class WriterService {
 
     private static final String SEPARATOR_LINE = "=".repeat(80) + "\n";
     private static final String DASH_LINE = "-".repeat(80) + "\n";
@@ -35,11 +38,9 @@ public class ScanResultWriter {
     
     private static final String WRITTEN_REPORT_TO = "Written %s report to: %s";
 
-    private final Log log;
     private final ObjectMapper objectMapper;
     
-    public ScanResultWriter(Log log) {
-        this.log = log;
+    public WriterService() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }

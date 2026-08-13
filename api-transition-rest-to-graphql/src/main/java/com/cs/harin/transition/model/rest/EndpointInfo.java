@@ -1,5 +1,6 @@
-package com.cs.harin.transition.model;
+package com.cs.harin.transition.model.rest;
 
+import com.cs.harin.transition.model.ParameterInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
