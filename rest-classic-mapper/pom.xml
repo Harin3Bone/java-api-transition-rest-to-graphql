@@ -95,6 +95,14 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.cs.harin</groupId>
+                <artifactId>api-transition-rest-to-graphql</artifactId>
+                <version>develop-SNAPSHOT</version>
+                <configuration>
+                    <basePackage>com.cs.harin.rest</basePackage>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
