@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -28,6 +30,17 @@ public class TransactionController {
     @ResponseStatus(HttpStatus.OK)
     public List<TransactionDAO> getTransactions() {
         return transactionService.getTransactions();
+    }
+
+    @GetMapping("/filter")
+    @ResponseStatus(HttpStatus.OK)
+    public List<TransactionDAO> getTransactions(
+            @RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+            @RequestParam(value = "size") Integer size,
+            @RequestParam(value = "sort", required = false) String sortBy,
+            @RequestParam(value = "fundCode") Integer fundCode
+    ) {
+        return Collections.emptyList();
     }
 
     @GetMapping("/{transactionId}")

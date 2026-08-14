@@ -12,8 +12,3 @@ CREATE TABLE transaction (
     created_timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
-
--- Create indexes for better query performance
-CREATE INDEX IF NOT EXISTS idx_transaction_status ON transaction(status);
-CREATE INDEX IF NOT EXISTS idx_transaction_fund_code ON transaction(fund_code);
-CREATE INDEX IF NOT EXISTS idx_transaction_account ON transaction(account);

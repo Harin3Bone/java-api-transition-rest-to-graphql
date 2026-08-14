@@ -30,8 +30,10 @@ public class ScanCodeMojo extends BaseMojo {
             createOutputDirectory();
 
             // Convert package name to directory path
-            Path packagePath = Paths.get(sourceDirectory.getAbsolutePath(),
-                    basePackage.replace('.', File.separatorChar));
+            Path packagePath = Paths.get(
+                    sourceDirectory.getAbsolutePath(),
+                    basePackage.replace('.', File.separatorChar)
+            );
 
             if (!packagePath.toFile().exists()) {
                 throw new MojoExecutionException("Package directory does not exist: " + packagePath);

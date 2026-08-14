@@ -1,6 +1,6 @@
 package com.cs.harin.transition.service;
 
-import com.cs.harin.transition.constant.HttpMethod;
+import com.cs.harin.transition.constant.ClassType;
 import com.cs.harin.transition.model.ClassInfo;
 import com.cs.harin.transition.model.FieldInfo;
 import com.cs.harin.transition.model.ParameterInfo;
@@ -16,13 +16,22 @@ import com.github.javaparser.ast.nodeTypes.NodeWithName;
 import com.github.javaparser.ast.nodeTypes.NodeWithType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpMethod;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.cs.harin.transition.constant.RestAnnotation.DELETE_MAPPING;
+import static com.cs.harin.transition.constant.RestAnnotation.GET_MAPPING;
+import static com.cs.harin.transition.constant.RestAnnotation.PATCH_MAPPING;
+import static com.cs.harin.transition.constant.RestAnnotation.PATH_VARIABLE;
+import static com.cs.harin.transition.constant.RestAnnotation.POST_MAPPING;
+import static com.cs.harin.transition.constant.RestAnnotation.PUT_MAPPING;
+import static com.cs.harin.transition.constant.RestAnnotation.REQUEST_BODY;
+import static com.cs.harin.transition.constant.RestAnnotation.REQUEST_MAPPING;
 
 /**
  * Scans Java source code and extracts information
@@ -37,10 +46,14 @@ public class ScannerService {
     }
 
     public ScanResult scan(Path packagePath, String packageName) throws IOException {
-        ScanResult result = ScanResult.builder().packageName(packageName).scanPath(packagePath.toString()).scanTimestamp(System.currentTimeMillis()).build();
+        ScanResult result = ScanResult.builder()
+                .packageName(packageName)
+                .scanPath(packagePath.toString())
+                .scanTimestamp(System.currentTimeMillis())
+                .build();
 
         List<File> javaFiles = findJavaFiles(packagePath);
-        log.info("Found {} Java files to scan", javaFiles.size());
+        log.debug("Found {} Java files to scan", javaFiles.size());
 
         for (File javaFile : javaFiles) {
             try {
@@ -54,11 +67,13 @@ public class ScannerService {
     }
 
     private List<File> findJavaFiles(Path directory) throws IOException {
-        return Files.walk(directory)
-                .filter(Files::isRegularFile)
-                .filter(path -> path.toString().endsWith(".java"))
-                .map(Path::toFile)
-                .toList();
+        try (var stream = Files.walk(directory)) {
+            return stream
+                    .filter(Files::isRegularFile)
+                    .filter(path -> path.toString().endsWith(".java"))
+                    .map(Path::toFile)
+                    .toList();
+        }
     }
 
     private void scanFile(File javaFile, ScanResult result) throws IOException {
@@ -69,26 +84,24 @@ public class ScannerService {
         }
 
         cu.getTypes().forEach(type -> {
-            if (type instanceof ClassOrInterfaceDeclaration) {
-                ClassOrInterfaceDeclaration classDecl = (ClassOrInterfaceDeclaration) type;
-                if (!classDecl.isInterface()) {
+            if (type instanceof ClassOrInterfaceDeclaration classDecl && !classDecl.isInterface()) {
                     ClassInfo classInfo = extractClassInfo(classDecl, javaFile, cu);
                     result.getClasses().add(classInfo);
 
                     // Categorize by type
-                    String classType = classInfo.getClassType();
+                    ClassType classType = classInfo.getClassType();
                     switch (classType) {
-                        case "CONTROLLER":
+                        case CONTROLLER:
                             result.getControllers().add(classInfo);
                             extractEndpoints(classDecl, classInfo, result);
                             break;
-                        case "ENTITY":
+                        case ENTITY:
                             result.getEntities().add(classInfo);
                             break;
-                        case "SERVICE":
+                        case SERVICE:
                             result.getServices().add(classInfo);
                             break;
-                        case "REPOSITORY":
+                        case REPOSITORY:
                             result.getRepositories().add(classInfo);
                             break;
                         default:
@@ -96,7 +109,6 @@ public class ScannerService {
                             break;
                     }
                 }
-            }
         });
     }
 
@@ -109,9 +121,9 @@ public class ScannerService {
 
         List<FieldInfo> fields = classDecl.getFields().stream()
                 .flatMap(field -> field.getVariables().stream()
-                        .map(var -> FieldInfo.builder()
-                                .name(var.getNameAsString())
-                                .type(var.getTypeAsString())
+                        .map(variable -> FieldInfo.builder()
+                                .name(variable.getNameAsString())
+                                .type(variable.getTypeAsString())
                                 .annotations(field.getAnnotations().stream()
                                         .map(AnnotationExpr::getNameAsString)
                                         .toList()
@@ -137,7 +149,7 @@ public class ScannerService {
                         .accessModifier(method.getAccessSpecifier().asString()).build())
                 .toList();
 
-        String classType = determineClassType(classDecl.getNameAsString(), annotations);
+        ClassType classType = determineClassType(classDecl.getNameAsString(), annotations);
 
         return ClassInfo.builder()
                 .packageName(packageName)
@@ -151,23 +163,23 @@ public class ScannerService {
                 .build();
     }
 
-    private String determineClassType(String className, List<String> annotations) {
+    private ClassType determineClassType(String className, List<String> annotations) {
         if (annotations.contains("RestController") || annotations.contains("Controller")) {
-            return "CONTROLLER";
+            return ClassType.CONTROLLER;
         } else if (annotations.contains("Entity") || annotations.contains("Document") || annotations.contains("Table")) {
-            return "ENTITY";
+            return ClassType.ENTITY;
         } else if (annotations.contains("Service")) {
-            return "SERVICE";
+            return ClassType.SERVICE;
         } else if (annotations.contains("Repository")) {
-            return "REPOSITORY";
+            return ClassType.REPOSITORY;
         } else if (annotations.contains("Configuration")) {
-            return "CONFIG";
+            return ClassType.CONFIGURATION;
         } else if (className.endsWith("DAO") || className.endsWith("Dao")) {
-            return "DAO";
+            return ClassType.DAO;
         } else if (className.endsWith("Util") || className.endsWith("Utils") || className.endsWith("Helper")) {
-            return "UTIL";
+            return ClassType.UTIL;
         }
-        return "OTHER";
+        return ClassType.UNKNOWN;
     }
 
     private void extractEndpoints(ClassOrInterfaceDeclaration classDecl, ClassInfo classInfo, ScanResult result) {
@@ -187,19 +199,19 @@ public class ScannerService {
 
     private String getBaseMappingPath(ClassOrInterfaceDeclaration classDecl) {
         return classDecl.getAnnotations().stream()
-                .filter(ann -> ann.getNameAsString().equals("RequestMapping"))
+                .filter(ann -> ann.getNameAsString().equals(REQUEST_MAPPING))
                 .findFirst()
                 .map(this::extractPathFromAnnotation)
                 .orElse(StringUtils.EMPTY);
     }
 
     private boolean isMappingAnnotation(String annotationName) {
-        return annotationName.equals("GetMapping")
-               || annotationName.equals("PostMapping")
-               || annotationName.equals("PutMapping")
-               || annotationName.equals("DeleteMapping")
-               || annotationName.equals("PatchMapping")
-               || annotationName.equals("RequestMapping");
+        return annotationName.equals(GET_MAPPING)
+               || annotationName.equals(POST_MAPPING)
+               || annotationName.equals(PUT_MAPPING)
+               || annotationName.equals(DELETE_MAPPING)
+               || annotationName.equals(PATCH_MAPPING)
+               || annotationName.equals(REQUEST_MAPPING);
     }
 
     private EndpointInfo extractEndpointInfo(MethodDeclaration method, AnnotationExpr mappingAnnotation, String baseMapping, ClassInfo classInfo) {
@@ -208,17 +220,17 @@ public class ScannerService {
 
         boolean hasRequestBody = method.getParameters().stream()
                 .anyMatch(param -> param.getAnnotations().stream()
-                        .anyMatch(ann -> ann.getNameAsString().equals("RequestBody"))
+                        .anyMatch(ann -> ann.getNameAsString().equals(REQUEST_BODY))
                 );
 
         boolean hasPathVariable = method.getParameters().stream()
                 .anyMatch(param -> param.getAnnotations().stream()
-                        .anyMatch(ann -> ann.getNameAsString().equals("PathVariable"))
+                        .anyMatch(ann -> ann.getNameAsString().equals(PATH_VARIABLE))
                 );
 
         String requestBodyType = method.getParameters().stream()
                 .filter(param -> param.getAnnotations().stream()
-                        .anyMatch(ann -> ann.getNameAsString().equals("RequestBody"))
+                        .anyMatch(ann -> ann.getNameAsString().equals(REQUEST_BODY))
                 )
                 .findFirst()
                 .map(NodeWithType::getTypeAsString)
@@ -248,13 +260,13 @@ public class ScannerService {
 
     private String determineHttpMethod(MethodDeclaration method, String annotationName) {
         return switch (annotationName) {
-            case "GetMapping" -> HttpMethod.GET.name();
-            case "PostMapping" -> HttpMethod.POST.name();
-            case "PutMapping" -> HttpMethod.PUT.name();
-            case "DeleteMapping" -> HttpMethod.DELETE.name();
-            case "PatchMapping" -> HttpMethod.PATCH.name();
-            case "RequestMapping" -> method.getAnnotations().stream()
-                    .filter(ann -> ann.getNameAsString().equals("RequestMapping"))
+            case GET_MAPPING -> HttpMethod.GET.name();
+            case POST_MAPPING -> HttpMethod.POST.name();
+            case PUT_MAPPING -> HttpMethod.PUT.name();
+            case DELETE_MAPPING -> HttpMethod.DELETE.name();
+            case PATCH_MAPPING -> HttpMethod.PATCH.name();
+            case REQUEST_MAPPING -> method.getAnnotations().stream()
+                    .filter(ann -> ann.getNameAsString().equals(REQUEST_MAPPING))
                     .findFirst()
                     .map(this::extractMethodFromRequestMapping)
                     .orElse(HttpMethod.GET.name());
@@ -275,7 +287,7 @@ public class ScannerService {
     private String extractPathFromAnnotation(AnnotationExpr annotation) {
         String annotationStr = annotation.toString();
 
-        // Try to extract value from annotation
+        // Extract value from annotation
         if (annotationStr.contains("value")) {
             int valueIndex = annotationStr.indexOf("value");
             int startQuote = annotationStr.indexOf("\"", valueIndex);
@@ -285,13 +297,13 @@ public class ScannerService {
             }
         }
 
-        // Try simple format: @GetMapping("/path")
+        // Simple format: @GetMapping("/path")
         int firstQuote = annotationStr.indexOf("\"");
         int lastQuote = annotationStr.lastIndexOf("\"");
         if (firstQuote != -1 && lastQuote != -1 && firstQuote != lastQuote) {
             return annotationStr.substring(firstQuote + 1, lastQuote);
         }
 
-        return "";
+        return StringUtils.EMPTY;
     }
 }

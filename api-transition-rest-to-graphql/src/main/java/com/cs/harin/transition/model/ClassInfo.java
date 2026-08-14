@@ -1,5 +1,6 @@
 package com.cs.harin.transition.model;
 
+import com.cs.harin.transition.constant.ClassType;
 import com.cs.harin.transition.model.rest.MethodInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +25,6 @@ public class ClassInfo {
     private List<String> annotations;
     private List<FieldInfo> fields;
     private List<MethodInfo> methods;
-    private String classType; // CONTROLLER, ENTITY, SERVICE, REPOSITORY, DAO, CONFIG, UTIL, OTHER
+    private ClassType classType;
 
 }

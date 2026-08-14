@@ -35,8 +35,6 @@ public class WriterService {
     private static final String LABEL_FILE = "File: ";
     private static final String LABEL_ANNOTATIONS = "Annotations: ";
     private static final String LABEL_METHODS = "Methods: ";
-    
-    private static final String WRITTEN_REPORT_TO = "Written %s report to: %s";
 
     private final ObjectMapper objectMapper;
     
@@ -63,7 +61,7 @@ public class WriterService {
     private void writeJsonSummary(ScanResult scanResult, File outputDirectory) throws IOException {
         File jsonFile = new File(outputDirectory, "scan-result.json");
         objectMapper.writeValue(jsonFile, scanResult);
-        log.info("Written JSON summary to: " + jsonFile.getName());
+        log.info("Written JSON summary to: {}", jsonFile.getName());
     }
     
     private void writeClassesReport(ScanResult scanResult, File outputDirectory) throws IOException {
@@ -109,7 +107,6 @@ public class WriterService {
                 writer.write(NEWLINE);
             }
         }
-        log.info(String.format(WRITTEN_REPORT_TO, "classes", reportFile.getName()));
     }
     
     private void writeControllersReport(ScanResult scanResult, File outputDirectory) throws IOException {
@@ -131,7 +128,6 @@ public class WriterService {
                 writer.write(NEWLINE);
             }
         }
-        log.info(String.format(WRITTEN_REPORT_TO, "controllers", reportFile.getName()));
     }
     
     private void writeEndpointsReport(ScanResult scanResult, File outputDirectory) throws IOException {
@@ -167,7 +163,6 @@ public class WriterService {
                 writer.write(NEWLINE);
             }
         }
-        log.info(String.format(WRITTEN_REPORT_TO, "endpoints", reportFile.getName()));
     }
     
     private void writeEntitiesReport(ScanResult scanResult, File outputDirectory) throws IOException {
@@ -196,7 +191,6 @@ public class WriterService {
                 writer.write(NEWLINE);
             }
         }
-        log.info(String.format(WRITTEN_REPORT_TO, "entities", reportFile.getName()));
     }
     
     private void writeServicesReport(ScanResult scanResult, File outputDirectory) throws IOException {
@@ -218,7 +212,6 @@ public class WriterService {
                 writer.write(NEWLINE);
             }
         }
-        log.info(String.format(WRITTEN_REPORT_TO, "services", reportFile.getName()));
     }
     
     private void writeRepositoriesReport(ScanResult scanResult, File outputDirectory) throws IOException {
@@ -240,6 +233,5 @@ public class WriterService {
                 writer.write(NEWLINE);
             }
         }
-        log.info(String.format(WRITTEN_REPORT_TO, "repositories", reportFile.getName()));
     }
 }

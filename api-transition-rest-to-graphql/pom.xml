@@ -16,6 +16,7 @@
 		<maven.compiler.target>17</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+		<spring-web.version>7.0.8</spring-web.version>
 		<lombok.version>1.18.46</lombok.version>
 		<slf4j.version>2.0.18</slf4j.version>
 		<jackson.version>2.15.3</jackson.version>
@@ -42,6 +43,14 @@
 			<artifactId>maven-plugin-annotations</artifactId>
 			<version>${maven.version}</version>
 			<scope>provided</scope>
+		</dependency>
+
+		<!-- Spring Web -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring-web.version}</version>
+			<scope>compile</scope>
 		</dependency>
 
 		<!-- Java Parser for code analysis -->
