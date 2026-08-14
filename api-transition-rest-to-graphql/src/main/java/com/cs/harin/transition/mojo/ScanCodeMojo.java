@@ -13,6 +13,8 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static com.cs.harin.transition.constant.ErrorMessage.UNEXPECTED_EXCEPTION;
+
 /**
  * Maven plugin goal to scan Java code in a package and write reports
  */
@@ -61,7 +63,7 @@ public class ScanCodeMojo extends BaseMojo {
 
         } catch (Exception e) {
             log.error("Error during code scanning", e);
-            throw new MojoExecutionException("Failed to scan code", e);
+            throw new MojoExecutionException(UNEXPECTED_EXCEPTION, e);
         }
     }
 

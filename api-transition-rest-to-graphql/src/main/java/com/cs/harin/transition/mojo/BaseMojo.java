@@ -17,6 +17,9 @@ public abstract class BaseMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     protected MavenProject project;
 
+    /**
+     * Configuration Parameters
+     */
     @Parameter(property = "basePackage", required = true)
     protected String basePackage;
 
@@ -31,6 +34,11 @@ public abstract class BaseMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "${project.build.directory}", readonly = true)
     protected File outputDirectory;
+
+    /**
+     * Abstract methods
+     */
+    protected abstract void getMojoDirectory();
 
     protected void preValidation() throws MojoExecutionException {
         log.info("Source directory: {}", sourceDirectory.getAbsolutePath());
@@ -56,5 +64,4 @@ public abstract class BaseMojo extends AbstractMojo {
         }
     }
 
-    protected abstract void getMojoDirectory();
 }
