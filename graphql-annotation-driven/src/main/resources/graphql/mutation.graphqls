@@ -1,0 +1,5 @@
+type Mutation {
+  createTransaction(request: TransactionRequest): Transaction
+  updateTransaction(transactionId: ID!, request: TransactionRequest): Transaction
+  deleteTransactionById(transactionId: ID!): Boolean
+}

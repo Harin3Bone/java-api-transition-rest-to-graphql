@@ -1,0 +1,23 @@
+# Scalars
+scalar Long
+
+# Types
+type Transaction {
+  id: ID!
+  status: String
+  fundCode: String
+  account: Long
+  dealer: Int
+  amount: Float
+  createdTimestamp: String
+  updatedTimestamp: String
+}
+
+# Inputs
+input TransactionRequest {
+  status: String
+  fundCode: String
+  account: Long
+  dealer: Int
+  amount: Float
+}

@@ -1,0 +1,4 @@
+type Query {
+  getTransactions(page: Int, size: Int, sort: String, fundCode: Int): [Transaction]
+  getTransactionById(transactionId: ID!): Transaction
+}
