@@ -1,4 +1,5 @@
 type Query {
-  getTransactions(page: Int, size: Int, sort: String, fundCode: Int): [Transaction]
+  getTransactions: [Transaction]
+  getTransactionsByFilter(page: Int, size: Int, sort: String, fundCode: Int): [Transaction]
   getTransactionById(transactionId: ID!): Transaction
 }

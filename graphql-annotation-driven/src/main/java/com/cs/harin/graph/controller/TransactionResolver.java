@@ -18,7 +18,12 @@ public class TransactionResolver {
     private final TransactionService transactionService;
 
     @QueryMapping
-    public List<TransactionDAO> getTransactions(
+    public List<TransactionDAO> getTransactions() {
+        return transactionService.getTransactions();
+    }
+
+    @QueryMapping
+    public List<TransactionDAO> getTransactionsByFilter(
             @Argument(value = "page") Integer page,
             @Argument(value = "size") Integer size,
             @Argument(value = "sort") String sortBy,

@@ -49,6 +49,13 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- Scalars: graphql-java extended scalars -->
+        <dependency>
+            <groupId>com.graphql-java</groupId>
+            <artifactId>graphql-java-extended-scalars</artifactId>
+            <version>20.1</version>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
